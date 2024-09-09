@@ -8,7 +8,6 @@ export default function Home() {
   const createDocument = useMutation(api.documents.createDocument);
   const documents = useQuery(api.documents.getDocuments);
 
-
   return (
     <main>
       <Unauthenticated>
