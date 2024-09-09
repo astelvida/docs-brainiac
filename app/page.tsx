@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { SignInButton, UserButton } from "@clerk/clerk-react";
 import { Authenticated, Unauthenticated, useMutation, useQuery } from "convex/react";
@@ -17,9 +18,9 @@ export default function Home() {
         <UserButton />
       </Authenticated>
 
-      <button onClick={() => { createDocument({ title: 'Hey!' }) }}>
+      <Button onClick={() => { createDocument({ title: 'Hey!' }) }}>
         Create Document
-      </button>
+      </Button>
 
       <div>
         {documents?.map((document) => (
