@@ -1,5 +1,5 @@
+'use client'
 import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@/components/ui/button";
 
 import { SignInButton, UserButton } from "@clerk/clerk-react";
 import { Authenticated, Unauthenticated, useMutation, useQuery } from "convex/react";
