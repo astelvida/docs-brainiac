@@ -18,16 +18,11 @@ import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { ButtonLoading } from "@/components/ButtonLoading"
 
-
-
-
 const formSchema = z.object({
   title: z.string().min(2, {
     message: "document must be at least 2 characters.",
   }),
-  // document: z.string().min(2, {
-  //   message: "document must be at least 2 characters.",
-  // }),
+  file: z.instanceof(File).refine((file) => file.size < 1000000)
 })
 
 export function UploadDocumentForm({ onUpload }: { onUpload: () => void }) {
@@ -38,14 +33,22 @@ export function UploadDocumentForm({ onUpload }: { onUpload: () => void }) {
     },
   })
 
-
   const createDocument = useMutation(api.documents.createDocument);
+  const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     console.log(values)
-    await createDocument(values)
+    const postUrl = await generateUploadUrl();
+    // Step 2: POST the file to the URL
+    const result = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": values.file!.type },
+      body: values.file,
+    });
+    const { storageId } = await result.json();
+    // Step 3: Save the newly allocated storage id to the database
+    // await sendImage({ storageId, author: name });
+    await createDocument({ title: values.title, fileId: storageId });
     onUpload()
   }
 
@@ -66,19 +69,22 @@ export function UploadDocumentForm({ onUpload }: { onUpload: () => void }) {
             </FormItem>
           )}
         />
-        {/* <FormField
+        <FormField
           control={form.control}
-          name="document"
-          render={({ field }) => (
+          name="file"
+          render={({ field: { value, onChange, ...fieldProps } }) => (
             <FormItem>
               <FormLabel>Upload</FormLabel>
               <FormControl>
-                <Input type="file" placeholder="upload document" {...field} />
+                <Input type="file" placeholder="upload document" {...fieldProps} onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  onChange(file)
+                }} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
-        /> */}
+        />
         {form.formState.isSubmitting ? <ButtonLoading /> : <Button type="submit">Create Document</Button>}
       </form>
     </Form>
