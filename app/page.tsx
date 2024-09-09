@@ -1,7 +1,7 @@
 'use client'
 
 import { api } from "@/convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import DocumentCard from "./document-card";
 import { CreateDocumentButton } from "./create-document-button";
 

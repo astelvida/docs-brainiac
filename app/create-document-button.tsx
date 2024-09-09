@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { UploadDocumentForm } from "./upload-document-form"
 import { useState } from "react"
+import { UploadIcon } from "@radix-ui/react-icons"
 
 export function CreateDocumentButton() {
 
@@ -18,7 +19,7 @@ export function CreateDocumentButton() {
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogTrigger asChild>
-        <Button>Create document</Button>
+        <Button><UploadIcon className="w-4 h-4 " /> Upload document</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-white">
         <DialogHeader>
