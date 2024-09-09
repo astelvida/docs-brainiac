@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -19,7 +20,7 @@ export default function DocumentCard({ document }: { document: Doc<"documents"> 
         <p>Card Content</p>
       </CardContent>
       <CardFooter>
-        <p>Card Footer</p>
+        <Button>View</Button>
       </CardFooter>
     </Card>
 
