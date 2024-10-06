@@ -12,24 +12,25 @@ import { EyeOpenIcon } from "@radix-ui/react-icons"
 import { Loader2 } from "lucide-react"
 import Link from "next/link"
 
+// TODO AUTOMATIVALLY MAKE A DESCRIPTION when uploading
 export default function DocumentCard({ document }: { document: Doc<"documents"> }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>{document.title}</CardTitle>
+        <CardDescription />
       </CardHeader>
       <CardContent>
-        <CardContent>
-          <div>
-            {!document.description ? (
-              <div className="flex justify-center">
-                <Loader2 className="animate-spin" /> Loading description
-              </div>
-            ) : (
-              document.description
-            )}
-          </div>
-        </CardContent>
+        <div>
+          DESCPRIPTION
+          {/* {!document.description ? (
+            <div className="flex">
+              <Loader2 className="animate-spin" /> Loading description
+            </div>
+          ) : (
+            document.description
+          )} */}
+        </div>
       </CardContent>
       <CardFooter>
         <Button asChild variant="secondary" className="flex items-center gap-2">
