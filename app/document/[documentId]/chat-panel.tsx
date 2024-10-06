@@ -4,51 +4,55 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery, useAction } from "convex/react";
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { QuestionForm } from "./question-form";
+import { useEffect, useRef } from "react";
 
 export default function ChatPanel({ documentId }: { documentId: Id<"documents"> }) {
-
-  const askQuestion = useAction(api.documents.askQuestion)
   const chats = useQuery(api.chats.getChatsForDocument, { documentId });
 
 
-  const sendChat = async (event) => {
-    event.preventDefault()
-    const form = event.target as HTMLFormElement
-    const formData = new FormData(form)
-    const question = formData.get("text") as string
-    console.log(question, documentId)
-    const response = await askQuestion({ question, documentId })
-    console.log(response)
-  }
+  // automatically scroll to bottom of chat
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chats]);
+
 
   return (
-    <main className="bg-gray-900 flex-col gap-2 p-4 ">
-      <div className="h-[350px] overflow-y-auto space-y-2 p-4">
-        <div className="bg-slate-950 rounded p-2">
-          Ask any question using AI
-        </div>
-        <div>
-          {
-            chats?.map(chat => (
-              <div key={chat._id} className={cn({
-                'bg-slate-200': chat.isHuman,
-                "text-right": chat.isHuman,
-                'bg-slate-300': !chat.isHuman
-              }, "rounded p-2")}>
-                {`${chat.isHuman ? "You" : 'AI'} : ${chat.text}`}
-              </div>
-            ))
-          }
-        </div>
-
+    <main className="dark:bg-gray-900 bg-slate-100 flex flex-col gap-2 p-6 rounded-xl">
+      <div className="dark:bg-slate-950 rounded p-3">
+        Ask any question using AI
       </div>
-      <form onSubmit={sendChat}>
-        <Input name="text" placeholder="Type a message" />
-        <Button type="submit">Send</Button>
-      </form>
-    </main >
+      <div className="h-[350px] overflow-y-auto space-y-3">
+        {
+          chats?.map(chat => (
+            <div key={chat._id} className={cn({
+              'bg-slate-200': chat.isHuman,
+              "text-right": chat.isHuman,
+              'bg-slate-300': !chat.isHuman,
+              'flex-row-reverse': chat.isHuman
+            }, "flex items-center rounded-md p-4 whitespace-pre-line gap-3")}>
+              <div className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 flex items-center justify-center focus:outline-none shadow-lg flex-shrink-0">
+                <div className="text-white font-bold text-lg">
+                  {`${chat.isHuman ? "You" : 'AI'}`}
+                </div>
+              </div>
+              <span>{chat.text}</span>
+            </div>
+          ))
+        }
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="flex gap-1">
+        <QuestionForm documentId={documentId} />
+      </div>
+    </main>
   )
 }              
