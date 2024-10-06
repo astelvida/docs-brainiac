@@ -39,7 +39,7 @@ export default function DocumentPage({ params: { documentId } }: { params: { doc
             )}
           </TabsContent>
           <TabsContent className="bg-slate-100" value="chat">
-            <Chat />
+            <Chat documentId={documentId} />
           </TabsContent>
         </Tabs>
       </div>

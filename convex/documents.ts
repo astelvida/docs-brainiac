@@ -1,4 +1,4 @@
-import { action, internalQuery, mutation, query } from "./_generated/server";
+import { action, internalQuery, mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 import OpenAI from "openai";
@@ -7,6 +7,37 @@ import { Id } from "./_generated/dataModel";
 
 const openai = new OpenAI();
 
+
+export async function hasAccessToDocument(
+  ctx: MutationCtx | QueryCtx,
+  documentId: Id<"documents">
+) {
+  const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+
+  if (!userId) {
+    return null;
+  }
+
+  const document = await ctx.db.get(documentId);
+
+  if (!document) {
+    return null;
+  }
+
+  if (document.tokenIdentifier !== userId) {
+    return null;
+  }
+  return { document, userId };
+}
+
+export const hasAccessToDocumentQuery = internalQuery({
+  args: {
+    documentId: v.id("documents"),
+  },
+  async handler(ctx, args) {
+    return await hasAccessToDocument(ctx, args.documentId);
+  },
+});
 
 
 export const createDocument = mutation({
@@ -75,15 +106,26 @@ export const getDocument = query({
   }
 });
 
+
+
 export const askQuestion = action({
   args: {
     question: v.string(),
     documentId: v.id("documents"),
   },
   async handler(ctx, args) {
-    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier
+    const accessObj = await ctx.runQuery(
+      internal.documents.hasAccessToDocumentQuery,
+      {
+        documentId: args.documentId,
+      }
+    );
 
-    const file = await ctx.storage.get(args.documentId);
+    if (!accessObj) {
+      throw new ConvexError("You do not have access to this document");
+    }
+
+    const file = await ctx.storage.get(accessObj.document.fileId);
 
     if (!file) {
       throw new ConvexError("File not found");
@@ -110,7 +152,7 @@ export const askQuestion = action({
       documentId: args.documentId,
       text: args.question,
       isHuman: true,
-      tokenIdentifier: userId,
+      tokenIdentifier: accessObj.userId,
     });
 
     const response =
@@ -121,7 +163,7 @@ export const askQuestion = action({
       documentId: args.documentId,
       text: response,
       isHuman: false,
-      tokenIdentifier: userId,
+      tokenIdentifier: accessObj.userId,
     });
 
     return response;
