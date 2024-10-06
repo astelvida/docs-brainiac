@@ -11,7 +11,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import Chat from "./chat";
+import ChatPanel from "./chat-panel";
 
 
 export default function DocumentPage({ params: { documentId } }: { params: { documentId: Id<"documents"> } }) {
@@ -39,7 +39,7 @@ export default function DocumentPage({ params: { documentId } }: { params: { doc
             )}
           </TabsContent>
           <TabsContent className="bg-slate-100" value="chat">
-            <Chat documentId={documentId} />
+            <ChatPanel documentId={documentId} />
           </TabsContent>
         </Tabs>
       </div>

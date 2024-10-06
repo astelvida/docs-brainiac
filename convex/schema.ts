@@ -14,5 +14,5 @@ export default defineSchema({
     tokenIdentifier: v.string(),
     isHuman: v.boolean(),
     text: v.string(),
-  }).index("by_documentId", ["documentId"])
+  }).index("by_documentId_tokenIdentifier", ["documentId", "tokenIdentifier"]),
 });
