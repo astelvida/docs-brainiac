@@ -1,5 +1,13 @@
-import { mutation, query } from "./_generated/server";
+import { action, internalQuery, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
+import { internal } from "./_generated/api";
+import OpenAI from "openai";
+import { Id } from "./_generated/dataModel";
+
+
+const openai = new OpenAI();
+
+
 
 export const createDocument = mutation({
   args: {
@@ -65,4 +73,57 @@ export const getDocument = query({
     console.log("{document}", { document })
     return { ...document, documentUrl: await ctx.storage.getUrl(document.fileId) };
   }
+});
+
+export const askQuestion = action({
+  args: {
+    question: v.string(),
+    documentId: v.id("documents"),
+  },
+  async handler(ctx, args) {
+    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier
+
+    const file = await ctx.storage.get(args.documentId);
+
+    if (!file) {
+      throw new ConvexError("File not found");
+    }
+
+    const text = await file.text();
+
+    const chatCompletion: OpenAI.Chat.Completions.ChatCompletion =
+      await openai.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: `Here is a text file: ${text}`,
+          },
+          {
+            role: "user",
+            content: `please answer this question: ${args.question}`,
+          },
+        ],
+        model: "gpt-3.5-turbo",
+      });
+
+    await ctx.runMutation(internal.chats.createChatRecord, {
+      documentId: args.documentId,
+      text: args.question,
+      isHuman: true,
+      tokenIdentifier: userId,
+    });
+
+    const response =
+      chatCompletion.choices[0].message.content ??
+      "could not generate a response";
+
+    await ctx.runMutation(internal.chats.createChatRecord, {
+      documentId: args.documentId,
+      text: response,
+      isHuman: false,
+      tokenIdentifier: userId,
+    });
+
+    return response;
+  },
 });

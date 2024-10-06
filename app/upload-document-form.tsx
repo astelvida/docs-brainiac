@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { ButtonLoading } from "@/components/ButtonLoading"
+import { LoadingButton } from "@/components/loading-button"
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -85,7 +86,7 @@ export function UploadDocumentForm({ onUpload }: { onUpload: () => void }) {
             </FormItem>
           )}
         />
-        {form.formState.isSubmitting ? <ButtonLoading /> : <Button type="submit">Create Document</Button>}
+        <LoadingButton loadingText="Uploading" isLoading={form.formState.isSubmitting}>Create Document</LoadingButton>
       </form>
     </Form>
   )
