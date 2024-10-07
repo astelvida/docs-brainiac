@@ -17,9 +17,7 @@ import { api } from "@/convex/_generated/api"
 import { LoadingButton } from "@/components/loading-button"
 
 const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "document must be at least 2 characters.",
-  }),
+  title: z.string().optional(),
   file: z.instanceof(File).refine((file) => file.size < 1000000)
 })
 

@@ -1,8 +1,8 @@
 import { action, internalAction, internalMutation, internalQuery, mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
-import OpenAI from "openai";
 import { Id } from "./_generated/dataModel";
+import OpenAI from "openai";
 
 
 const openai = new OpenAI();
@@ -59,6 +59,9 @@ export const generateDocumentDescription = internalAction({
 
     const text = await file.text();
 
+
+
+
     const chatCompletion: OpenAI.Chat.Completions.ChatCompletion =
       await openai.chat.completions.create({
         messages: [
@@ -78,9 +81,17 @@ export const generateDocumentDescription = internalAction({
       chatCompletion.choices[0].message.content ??
       "could not figure out the description for this document";
 
+
+    const embedding = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: description,
+      encoding_format: "float",
+    });
+
     await ctx.runMutation(internal.documents.updateDocumentDescription, {
       documentId: args.documentId,
       description: description,
+      embedding: embedding.data[0].embedding,
     });
   },
 });
@@ -89,10 +100,12 @@ export const updateDocumentDescription = internalMutation({
   args: {
     documentId: v.id("documents"),
     description: v.string(),
+    embedding: v.array(v.float64()),
   },
   async handler(ctx, args) {
     await ctx.db.patch(args.documentId, {
       description: args.description,
+      embedding: args.embedding,
     });
   },
 });
@@ -115,13 +128,15 @@ export const createDocument = mutation({
       tokenIdentifier: userId,
       fileId: args.fileId
     });
+
     console.log(newDocument)
     await ctx.scheduler.runAfter(
       0,
       internal.documents.generateDocumentDescription,
       {
         fileId: args.fileId,
-        documentId: newDocument
+        documentId: newDocument,
+
       })
 
     return newDocument;
