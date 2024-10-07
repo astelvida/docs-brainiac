@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { UploadDocumentForm } from "./upload-document-form"
+import { UploadDocumentForm } from "./upload-doc-form"
 import { useState } from "react"
 import { UploadIcon } from "@radix-ui/react-icons"
 

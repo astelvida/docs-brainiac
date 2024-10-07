@@ -3,7 +3,7 @@
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import DocumentCard from "./document-card";
-import { CreateDocumentButton } from "./create-document-button";
+import { CreateDocumentButton } from "./create-doc";
 import { Skeleton } from "@/components/ui/skeleton"
 import Image from "next/image";
 import { Card } from "@/components/ui/card";

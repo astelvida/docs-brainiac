@@ -14,7 +14,7 @@ import {
 import ChatPanel from "./chat-panel";
 import { Button } from "@/components/ui/button";
 import { TrashIcon } from "@radix-ui/react-icons";
-import DeleteDocumentButton from "./delete-document-button";
+import DeleteDocumentButton from "./delete-doc";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
