@@ -22,14 +22,13 @@ export default function DocumentCard({ document }: { document: Doc<"documents"> 
       </CardHeader>
       <CardContent>
         <div>
-          DESCPRIPTION
-          {/* {!document.description ? (
+          {!document.description ? (
             <div className="flex">
               <Loader2 className="animate-spin" /> Loading description
             </div>
           ) : (
             document.description
-          )} */}
+          )}
         </div>
       </CardContent>
       <CardFooter>

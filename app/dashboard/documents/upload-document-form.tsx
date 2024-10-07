@@ -46,7 +46,7 @@ export function UploadDocumentForm({ onUpload }: { onUpload: () => void }) {
     const { storageId } = await result.json();
     // Step 3: Save the newly allocated storage id to the database
     // await sendImage({ storageId, author: name });
-    await createDocument({ title: values.title, fileId: storageId });
+    await createDocument({ title: values.file.name || values.title, fileId: storageId });
     onUpload()
   }
 
