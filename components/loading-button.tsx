@@ -6,7 +6,7 @@ export function LoadingButton({
   isLoading,
   children,
   loadingText,
-  onClick,
+  onClick = () => { },
 }: {
   isLoading: boolean;
   children: ReactNode;
@@ -18,9 +18,7 @@ export function LoadingButton({
       className="flex gap-1 items-center"
       disabled={isLoading}
       type="submit"
-      onClick={(e) => {
-        onClick?.(e);
-      }}
+      onClick={onClick}
     >
       {isLoading && <Loader2 className="animate-spin" />}
       {isLoading ? loadingText : children}

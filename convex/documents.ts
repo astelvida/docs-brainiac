@@ -27,6 +27,7 @@ export async function hasAccessToDocument(
   if (document.tokenIdentifier !== userId) {
     return null;
   }
+
   return { document, userId };
 }
 
@@ -62,6 +63,23 @@ export const createDocument = mutation({
 });
 
 
+
+export const deleteDocument = mutation({
+  args: {
+    documentId: v.id("documents"),
+  },
+  async handler(ctx, args) {
+    const accessObj = await hasAccessToDocument(ctx, args.documentId);
+
+    if (!accessObj) {
+      throw new ConvexError("You do not have access to this document");
+    }
+
+    await ctx.storage.delete(accessObj.document.fileId);
+    await ctx.db.delete(args.documentId);
+  },
+});
+
 export const getDocuments = query({
   handler: async (ctx) => {
     const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier
@@ -84,28 +102,24 @@ export const generateUploadUrl = mutation(async (ctx) => {
 });
 
 
+
 export const getDocument = query({
   args: {
-    documentId: v.id('documents')
+    documentId: v.id("documents"),
   },
-  handler: async (ctx, args) => {
-    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier
+  async handler(ctx, args) {
+    const accessObj = await hasAccessToDocument(ctx, args.documentId);
 
-    if (!userId) {
-      throw new ConvexError("Not authenticated")
+    if (!accessObj) {
+      return null;
     }
 
-    const document = await ctx.db.get(args.documentId);
-
-    if (!document || document.tokenIdentifier !== userId) {
-      throw new ConvexError("Document not found")
-    }
-
-    console.log("{document}", { document })
-    return { ...document, documentUrl: await ctx.storage.getUrl(document.fileId) };
-  }
+    return {
+      ...accessObj.document,
+      documentUrl: await ctx.storage.getUrl(accessObj.document.fileId),
+    };
+  },
 });
-
 
 
 export const askQuestion = action({
